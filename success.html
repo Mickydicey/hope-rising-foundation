@@ -8,223 +8,510 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1a5f3f 0%, #0f3d28 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            background: linear-gradient(135deg, #1a5f3f 0%, #0f3d28 100%);
         }
-        
-        .success-card {
+
+        .card {
             background: white;
             border-radius: 25px;
-            padding: 60px 50px;
-            text-align: center;
-            max-width: 550px;
+            padding: 50px 45px;
+            max-width: 560px;
             width: 100%;
+            text-align: center;
             box-shadow: 0 30px 80px rgba(0,0,0,0.3);
             animation: slideUp 0.6s ease;
         }
-        
+
         @keyframes slideUp {
             from { transform: translateY(40px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-        
-        .success-icon {
+
+        /* Success State */
+        .icon-circle {
             width: 100px;
             height: 100px;
-            background: linear-gradient(135deg, #f05a28, #f5b942);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 30px;
-            font-size: 45px;
+            margin: 0 auto 25px;
+            font-size: 42px;
             color: white;
+        }
+
+        .icon-circle.success {
+            background: linear-gradient(135deg, #f05a28, #f5b942);
             animation: heartBeat 1.5s ease infinite;
         }
-        
+
+        .icon-circle.cancelled {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .icon-circle.failed {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
         @keyframes heartBeat {
             0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+            50% { transform: scale(1.08); }
         }
-        
+
         h1 {
             font-family: 'Playfair Display', serif;
-            font-size: 36px;
+            font-size: 32px;
             color: #1a1a2e;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
+            line-height: 1.2;
         }
-        
+
         .accent { color: #f05a28; }
-        
-        p {
+        .red { color: #e74c3c; }
+
+        .subtitle {
             color: #6c757d;
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.7;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
         }
-        
+
+        /* Status Box */
         .status-box {
             background: #f8f9f5;
             border-radius: 15px;
             padding: 20px 25px;
-            margin: 25px 0;
+            margin: 20px 0;
             border-left: 4px solid #f05a28;
             text-align: left;
         }
-        
+
+        .status-box.cancelled-box {
+            border-left-color: #e74c3c;
+            background: #fff5f5;
+        }
+
         .status-row {
             display: flex;
             justify-content: space-between;
-            padding: 8px 0;
+            align-items: center;
+            padding: 10px 0;
             font-size: 14px;
             border-bottom: 1px dashed #e0e0e0;
+            gap: 15px;
         }
-        
+
         .status-row:last-child { border-bottom: none; }
-        .status-row span { color: #6c757d; }
-        .status-row strong { color: #1a1a2e; }
-        
+        .status-row span { color: #6c757d; white-space: nowrap; }
+        .status-row strong { color: #1a1a2e; text-align: right; }
+
+        .badge-success {
+            background: #e8f8f0;
+            color: #27ae60;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .badge-cancelled {
+            background: #fdeaea;
+            color: #e74c3c;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
             gap: 10px;
-            padding: 15px 35px;
-            background: #f05a28;
-            color: white;
-            text-decoration: none;
+            padding: 15px 32px;
             border-radius: 50px;
             font-weight: 600;
             font-size: 15px;
+            text-decoration: none;
             transition: all 0.3s ease;
-            margin-top: 10px;
+            cursor: pointer;
+            border: none;
+            font-family: 'Poppins', sans-serif;
         }
-        
-        .btn:hover {
+
+        .btn-primary {
+            background: #f05a28;
+            color: white;
+            box-shadow: 0 8px 25px rgba(240,90,40,0.35);
+        }
+
+        .btn-primary:hover {
             background: #d84a1e;
             transform: translateY(-3px);
         }
-        
+
+        .btn-outline {
+            background: transparent;
+            color: #f05a28;
+            border: 2px solid #f05a28;
+        }
+
+        .btn-outline:hover {
+            background: #f05a28;
+            color: white;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        /* What happens next */
+        .next-steps {
+            background: #f8f9f5;
+            border-radius: 15px;
+            padding: 20px 25px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .next-steps h4 {
+            font-size: 14px;
+            color: #1a1a2e;
+            margin-bottom: 15px;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .next-step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #6c757d;
+        }
+
+        .next-step-item:last-child { margin-bottom: 0; }
+
+        .step-num {
+            width: 24px;
+            height: 24px;
+            background: #f05a28;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        /* Social Share */
         .social-share {
-            margin-top: 30px;
+            margin-top: 25px;
             padding-top: 25px;
             border-top: 1px solid #f0f0f0;
         }
-        
+
         .social-share p {
-            font-size: 14px;
-            margin-bottom: 15px;
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 12px;
         }
-        
+
         .share-btns {
             display: flex;
-            gap: 12px;
+            gap: 10px;
             justify-content: center;
         }
-        
+
         .share-btn {
-            width: 45px;
-            height: 45px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             text-decoration: none;
-            font-size: 18px;
+            font-size: 16px;
             transition: all 0.3s ease;
         }
-        
+
         .share-btn:hover { transform: translateY(-3px); }
         .share-btn.facebook { background: #1877f2; }
         .share-btn.twitter { background: #1da1f2; }
         .share-btn.whatsapp { background: #25d366; }
+
+        /* Retry options for cancelled */
+        .retry-options {
+            background: #fff5f5;
+            border-radius: 15px;
+            padding: 20px 25px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .retry-options h4 {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 12px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .retry-options p {
+            font-size: 13px;
+            color: #6c757d;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .retry-options p i {
+            color: #f05a28;
+            width: 16px;
+        }
+
+        @media (max-width: 480px) {
+            .card { padding: 35px 25px; }
+            h1 { font-size: 26px; }
+            .btn-group { flex-direction: column; align-items: center; }
+        }
     </style>
 </head>
 <body>
-    <div class="success-card">
-        <div class="success-icon">
-            <i class="fas fa-heart"></i>
-        </div>
-        
-        <h1>Thank You for Your <span class="accent">Generosity!</span></h1>
-        
-        <p>
-            Your donation has been received and will directly impact 
-            the lives of orphaned and vulnerable children in Nigeria. 
-            <strong>God bless you!</strong>
-        </p>
-        
-        <!-- Payment status will be filled by JS -->
-        <div class="status-box" id="statusBox">
-            <div class="status-row">
-                <span>Status:</span>
-                <strong id="payStatus" style="color: #27ae60;">
-                    <i class="fas fa-check-circle"></i> Successful
-                </strong>
+<div class="card" id="mainCard">
+    <!-- Content inserted by JS below -->
+</div>
+
+<script>
+    // Read URL params from Flutterwave redirect
+    const params = new URLSearchParams(window.location.search);
+    const status = params.get('status');
+    const txRef = params.get('tx_ref');
+    const transactionId = params.get('transaction_id');
+
+    // Read donor info from sessionStorage
+    const donorName = sessionStorage.getItem('donorName') || 'Donor';
+    const donorEmail = sessionStorage.getItem('donorEmail') || '';
+    const donationAmount = sessionStorage.getItem('donationAmount') || '';
+    const donationPurpose = sessionStorage.getItem('donationPurpose') || 'General Donation';
+
+    const card = document.getElementById('mainCard');
+
+    // ✅ SUCCESSFUL PAYMENT
+    if (status === 'successful' || status === 'completed') {
+        card.innerHTML = `
+            <div class="icon-circle success">
+                <i class="fas fa-heart"></i>
             </div>
-            <div class="status-row">
-                <span>Transaction Ref:</span>
-                <strong id="txRef">Processing...</strong>
+            <h1>Thank You, <span class="accent">${donorName}!</span></h1>
+            <p class="subtitle">
+                Your donation has been received and will directly impact 
+                the lives of orphaned and vulnerable children in Nigeria. 
+                <strong>God bless you abundantly!</strong>
+            </p>
+
+            <div class="status-box">
+                <div class="status-row">
+                    <span>Status:</span>
+                    <strong><span class="badge-success"><i class="fas fa-check-circle"></i> Successful</span></strong>
+                </div>
+                ${transactionId ? `
+                <div class="status-row">
+                    <span>Transaction ID:</span>
+                    <strong>#${transactionId}</strong>
+                </div>` : ''}
+                ${txRef ? `
+                <div class="status-row">
+                    <span>Reference:</span>
+                    <strong>${txRef}</strong>
+                </div>` : ''}
+                ${donationAmount ? `
+                <div class="status-row">
+                    <span>Amount:</span>
+                    <strong>$${donationAmount}</strong>
+                </div>` : ''}
+                <div class="status-row">
+                    <span>Donated for:</span>
+                    <strong>${donationPurpose}</strong>
+                </div>
+                ${donorEmail ? `
+                <div class="status-row">
+                    <span>Confirmation sent to:</span>
+                    <strong>${donorEmail}</strong>
+                </div>` : ''}
             </div>
-            <div class="status-row">
-                <span>Organization:</span>
-                <strong>Dloveofthehelpers</strong>
+
+            <div class="next-steps">
+                <h4>What Happens Next?</h4>
+                <div class="next-step-item">
+                    <div class="step-num">1</div>
+                    <span>A confirmation email will be sent to your email address shortly.</span>
+                </div>
+                <div class="next-step-item">
+                    <div class="step-num">2</div>
+                    <span>Your donation will be allocated to ${donationPurpose} within 24 hours.</span>
+                </div>
+                <div class="next-step-item">
+                    <div class="step-num">3</div>
+                    <span>We will share impact updates with you via email.</span>
+                </div>
             </div>
-        </div>
-        
-        <p>
-            A confirmation email will be sent to you. 
-            For questions contact us at 
-            <strong>info@dloveofthehelpers.org</strong>
-        </p>
-        
-        <a href="index.html" class="btn">
-            <i class="fas fa-home"></i> Back to Home
-        </a>
-        
-        <div class="social-share">
-            <p>Help spread the word — share with friends & family:</p>
-            <div class="share-btns">
-                <a href="https://facebook.com/sharer/sharer.php?u=https://dloveofthehelpers.vercel.app" 
-                   target="_blank" class="share-btn facebook">
-                    <i class="fab fa-facebook-f"></i>
+
+            <div class="btn-group">
+                <a href="index.html" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Back to Home
                 </a>
-                <a href="https://twitter.com/intent/tweet?text=I just donated to Dloveofthehelpers! Join me in helping orphaned children in Nigeria. &url=https://dloveofthehelpers.vercel.app" 
-                   target="_blank" class="share-btn twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="https://wa.me/?text=I just donated to Dloveofthehelpers to help orphaned children in Nigeria! You can too: https://dloveofthehelpers.vercel.app" 
-                   target="_blank" class="share-btn whatsapp">
-                    <i class="fab fa-whatsapp"></i>
+                <a href="index.html#donate" class="btn btn-outline">
+                    <i class="fas fa-heart"></i> Donate Again
                 </a>
             </div>
-        </div>
-    </div>
-    
-    <script>
-        // Read URL params from Flutterwave redirect
-        const params = new URLSearchParams(window.location.search);
-        const status = params.get('status');
-        const txRef = params.get('tx_ref');
-        const transactionId = params.get('transaction_id');
-        
-        // Update status display
-        if (txRef) {
-            document.getElementById('txRef').textContent = txRef;
-        }
-        
-        if (status === 'cancelled') {
-            document.getElementById('payStatus').innerHTML = 
-                '<i class="fas fa-times-circle" style="color:#e74c3c"></i> Cancelled';
-            document.getElementById('payStatus').style.color = '#e74c3c';
-        }
-    </script>
+
+            <div class="social-share">
+                <p>Help spread the word — share with friends & family:</p>
+                <div class="share-btns">
+                    <a href="https://facebook.com/sharer/sharer.php?u=https://dloveofthehelpers.vercel.app" 
+                       target="_blank" class="share-btn facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?text=I just donated to Dloveofthehelpers to help orphaned children in Nigeria! Join me: &url=https://dloveofthehelpers.vercel.app" 
+                       target="_blank" class="share-btn twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://wa.me/?text=I just donated to Dloveofthehelpers! Help orphaned children in Nigeria too: https://dloveofthehelpers.vercel.app" 
+                       target="_blank" class="share-btn whatsapp">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+        `;
+
+        // Clear session storage
+        sessionStorage.clear();
+
+    // ❌ CANCELLED PAYMENT
+    } else if (status === 'cancelled') {
+        card.innerHTML = `
+            <div class="icon-circle cancelled">
+                <i class="fas fa-times"></i>
+            </div>
+            <h1>Payment <span class="red">Cancelled</span></h1>
+            <p class="subtitle">
+                No worries, ${donorName}! Your payment was cancelled and 
+                <strong>no money has been charged</strong> from your account.
+            </p>
+
+            <div class="status-box cancelled-box">
+                <div class="status-row">
+                    <span>Status:</span>
+                    <strong><span class="badge-cancelled"><i class="fas fa-times-circle"></i> Cancelled</span></strong>
+                </div>
+                ${donationAmount ? `
+                <div class="status-row">
+                    <span>Amount:</span>
+                    <strong>$${donationAmount}</strong>
+                </div>` : ''}
+                <div class="status-row">
+                    <span>Charged:</span>
+                    <strong style="color:#27ae60">Nothing — $0.00</strong>
+                </div>
+            </div>
+
+            <div class="retry-options">
+                <h4>Would you still like to help?</h4>
+                <p><i class="fas fa-credit-card"></i> Try paying again with a different card</p>
+                <p><i class="fas fa-university"></i> Use Bank Transfer instead</p>
+                <p><i class="fas fa-envelope"></i> Contact us at info@dloveofthehelpers.org</p>
+            </div>
+
+            <div class="btn-group">
+                <a href="index.html#donate" class="btn btn-primary">
+                    <i class="fas fa-redo"></i> Try Again
+                </a>
+                <a href="index.html" class="btn btn-outline">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+        `;
+
+    // ❌ FAILED PAYMENT
+    } else if (status === 'failed') {
+        card.innerHTML = `
+            <div class="icon-circle failed">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h1>Payment <span class="red">Failed</span></h1>
+            <p class="subtitle">
+                We are sorry, something went wrong with your payment. 
+                <strong>No money has been charged</strong> from your account. 
+                Please try again.
+            </p>
+
+            <div class="status-box cancelled-box">
+                <div class="status-row">
+                    <span>Status:</span>
+                    <strong><span class="badge-cancelled"><i class="fas fa-exclamation-circle"></i> Failed</span></strong>
+                </div>
+                <div class="status-row">
+                    <span>Charged:</span>
+                    <strong style="color:#27ae60">Nothing — $0.00</strong>
+                </div>
+            </div>
+
+            <div class="retry-options">
+                <h4>What can you do?</h4>
+                <p><i class="fas fa-credit-card"></i> Try a different card</p>
+                <p><i class="fas fa-wifi"></i> Check your internet connection</p>
+                <p><i class="fas fa-university"></i> Use Bank Transfer instead</p>
+                <p><i class="fas fa-envelope"></i> Contact us at info@dloveofthehelpers.org</p>
+            </div>
+
+            <div class="btn-group">
+                <a href="index.html#donate" class="btn btn-primary">
+                    <i class="fas fa-redo"></i> Try Again
+                </a>
+                <a href="index.html" class="btn btn-outline">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+        `;
+
+    // Unknown status - default to success view
+    } else {
+        card.innerHTML = `
+            <div class="icon-circle success">
+                <i class="fas fa-heart"></i>
+            </div>
+            <h1>Thank You for Your <span class="accent">Generosity!</span></h1>
+            <p class="subtitle">
+                Your support means everything to the children of Nigeria.
+                If you completed a payment, it has been received.
+            </p>
+            <div class="btn-group">
+                <a href="index.html" class="btn btn-primary">
+                    <i class="fas fa-home"></i> Back to Home
+                </a>
+            </div>
+        `;
+    }
+</script>
 </body>
 </html>

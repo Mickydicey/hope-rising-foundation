@@ -166,29 +166,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // ============================================
-// DONATION MODAL & FLUTTERWAVE INTEGRATION
+// ============================================
+// DONATION MODAL & FLUTTERWAVE - IMPROVED
 // ============================================
 
-// Global variables for donation
+// Global variables
 let currentDonationAmount = 25;
 let currentDonationPurpose = 'General Donation';
+let donorName = '';
+let donorEmail = '';
 
 // === Open Donation Modal ===
 function openDonateModal(amount, purpose) {
     currentDonationAmount = amount;
     currentDonationPurpose = purpose;
-    
+
+    // Update display
     document.getElementById('modalAmount').textContent = '$' + amount;
     document.getElementById('modalPurpose').textContent = purpose;
-    
-    // Hide custom amount input, show payment methods
+    document.getElementById('modalAmount2').textContent = '$' + amount;
+    document.getElementById('modalPurpose2').textContent = purpose;
+
+    // Hide custom amount, show donor form
     document.getElementById('customAmountInput').style.display = 'none';
-    document.getElementById('paymentMethods').style.display = 'block';
-    
-    // Remove any bank details that might be showing
-    const existingBank = document.querySelector('.bank-details-info');
-    if (existingBank) existingBank.remove();
-    
+    document.getElementById('donorForm').style.display = 'block';
+
+    // Show Step 1
+    showStep('stepDetails');
+
+    // Open modal
     document.getElementById('donationModal').classList.add('active');
     document.body.style.overflow = 'hidden';
 }
@@ -197,72 +203,143 @@ function openDonateModal(amount, purpose) {
 function openCustomDonateModal() {
     document.getElementById('modalAmount').textContent = '$0';
     document.getElementById('modalPurpose').textContent = 'General Donation';
-    
-    // Show custom amount input, hide payment methods
+
+    // Show custom amount input
     document.getElementById('customAmountInput').style.display = 'block';
-    document.getElementById('paymentMethods').style.display = 'none';
-    
+    document.getElementById('donorForm').style.display = 'block';
+
+    showStep('stepDetails');
+
     document.getElementById('donationModal').classList.add('active');
     document.body.style.overflow = 'hidden';
 }
 
-// === Update Custom Amount ===
-function updateCustomAmount() {
-    const amount = parseFloat(document.getElementById('customAmountField').value);
-    
-    if (!amount || amount < 1) {
-        alert('Please enter a valid amount (minimum $1)');
+// === Show a Step ===
+function showStep(stepId) {
+    // Hide all steps
+    document.querySelectorAll('.modal-step').forEach(step => {
+        step.style.display = 'none';
+    });
+
+    // Show requested step
+    document.getElementById(stepId).style.display = 'block';
+}
+
+// === Proceed to Payment (validate first) ===
+function proceedToPayment() {
+
+    // If custom amount, validate it first
+    const customInput = document.getElementById('customAmountInput');
+    if (customInput.style.display !== 'none') {
+        const amount = parseFloat(document.getElementById('customAmountField').value);
+        if (!amount || amount < 1) {
+            showInputError('customAmountField', 'Please enter a valid amount (minimum $1)');
+            return;
+        }
+        currentDonationAmount = amount;
+        currentDonationPurpose = 'General Donation';
+        document.getElementById('modalAmount2').textContent = '$' + amount;
+        document.getElementById('modalPurpose2').textContent = 'General Donation';
+    }
+
+    // Validate name
+    const nameInput = document.getElementById('donorName');
+    const name = nameInput.value.trim();
+    if (!name) {
+        showInputError('donorName', 'Please enter your full name');
+        nameInput.classList.add('error');
         return;
     }
-    
-    currentDonationAmount = amount;
-    currentDonationPurpose = 'General Donation';
-    
-    document.getElementById('modalAmount').textContent = '$' + amount;
-    
-    // Switch from custom input to payment methods
-    document.getElementById('customAmountInput').style.display = 'none';
-    document.getElementById('paymentMethods').style.display = 'block';
+
+    // Validate email
+    const emailInput = document.getElementById('donorEmail');
+    const email = emailInput.value.trim();
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email || !emailRegex.test(email)) {
+        showInputError('donorEmail', 'Please enter a valid email address');
+        emailInput.classList.add('error');
+        return;
+    }
+
+    // Save donor details
+    donorName = name;
+    donorEmail = email;
+
+    // Update amount display on step 2
+    document.getElementById('modalAmount2').textContent = '$' + currentDonationAmount;
+    document.getElementById('modalPurpose2').textContent = currentDonationPurpose;
+
+    // Go to payment step
+    showStep('stepPayment');
+}
+
+// === Show Input Error ===
+function showInputError(inputId, message) {
+    // Remove existing error
+    const existing = document.querySelector('.input-error-msg');
+    if (existing) existing.remove();
+
+    const input = document.getElementById(inputId);
+    input.classList.add('error');
+
+    const errorMsg = document.createElement('p');
+    errorMsg.className = 'input-error-msg';
+    errorMsg.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+    input.parentNode.appendChild(errorMsg);
+
+    // Remove error on input
+    input.addEventListener('input', function() {
+        input.classList.remove('error');
+        if (errorMsg.parentNode) errorMsg.remove();
+    }, { once: true });
+
+    // Shake animation
+    input.style.animation = 'shake 0.4s ease';
+    setTimeout(() => input.style.animation = '', 400);
+}
+
+// === Go Back to Details Step ===
+function goBackToDetails() {
+    showStep('stepDetails');
 }
 
 // === Close Donation Modal ===
 function closeDonateModal() {
     document.getElementById('donationModal').classList.remove('active');
     document.body.style.overflow = 'auto';
-    
-    // Reset modal state
+
+    // Reset everything after animation
     setTimeout(() => {
-        document.getElementById('customAmountInput').style.display = 'none';
+        showStep('stepDetails');
+        document.getElementById('donorName').value = '';
+        document.getElementById('donorEmail').value = '';
+        document.getElementById('donorName').classList.remove('error');
+        document.getElementById('donorEmail').classList.remove('error');
         document.getElementById('paymentMethods').style.display = 'block';
+        document.getElementById('paymentLoading').style.display = 'none';
+
+        // Remove any error messages
+        document.querySelectorAll('.input-error-msg').forEach(el => el.remove());
+
+        // Remove bank details if showing
         const existingBank = document.querySelector('.bank-details-info');
         if (existingBank) existingBank.remove();
     }, 300);
 }
 
-// Close modal on Escape key
+// Close on Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeDonateModal();
 });
 
-// === Flutterwave Payment Function (UPDATED - Live & Secure) ===
+// === Flutterwave Payment - IMPROVED ===
 async function payWithFlutterwave() {
-    
-    // Show loading state on button
-    const btn = document.querySelector('.payment-option.flutterwave');
-    const originalHTML = btn.innerHTML;
-    btn.innerHTML = `
-        <div class="payment-icon" style="background: linear-gradient(135deg, #f5a623, #ff8c00);">
-            <i class="fas fa-spinner fa-spin"></i>
-        </div>
-        <div class="payment-details">
-            <h4>Processing...</h4>
-            <p>Please wait</p>
-        </div>
-    `;
-    btn.disabled = true;
-    
+
+    // Show loading state
+    document.getElementById('paymentMethods').style.display = 'none';
+    document.getElementById('paymentLoading').style.display = 'block';
+
     try {
-        // Call our secure backend instead of Flutterwave directly
         const response = await fetch('/api/initialize-payment', {
             method: 'POST',
             headers: {
@@ -271,41 +348,53 @@ async function payWithFlutterwave() {
             body: JSON.stringify({
                 amount: currentDonationAmount,
                 purpose: currentDonationPurpose,
-                email: 'donor@dloveofthehelpers.org',
-                name: 'Generous Donor',
+                email: donorEmail,
+                name: donorName,
             }),
         });
-        
+
         const data = await response.json();
-        
+
         if (data.status === 'success' && data.payment_link) {
-            // Redirect donor to Flutterwave payment page
+            // Save donation info to sessionStorage
+            // So success page can display it
+            sessionStorage.setItem('donorName', donorName);
+            sessionStorage.setItem('donorEmail', donorEmail);
+            sessionStorage.setItem('donationAmount', currentDonationAmount);
+            sessionStorage.setItem('donationPurpose', currentDonationPurpose);
+
+            // Redirect to Flutterwave
             window.location.href = data.payment_link;
+
         } else {
             throw new Error(data.error || 'Payment initialization failed');
         }
-        
+
     } catch (error) {
         console.error('Payment Error:', error);
-        showNotification('⚠️ Payment failed: ' + error.message + '. Please try Bank Transfer.', 'error');
-        
-        // Restore button
-        btn.innerHTML = originalHTML;
-        btn.disabled = false;
+
+        // Hide loading, show payment methods again
+        document.getElementById('paymentLoading').style.display = 'none';
+        document.getElementById('paymentMethods').style.display = 'block';
+
+        showNotification(
+            '⚠️ ' + error.message + '. Please try again or use Bank Transfer.',
+            'error'
+        );
     }
 }
 
 // === Show Bank Transfer Details ===
 function showBankDetails() {
     const paymentMethods = document.getElementById('paymentMethods');
-    
-    // Check if already showing - toggle off
+
+    // Toggle off if already showing
     const existing = document.querySelector('.bank-details-info');
     if (existing) {
         existing.remove();
         return;
     }
-    
+
     const bankInfo = document.createElement('div');
     bankInfo.className = 'bank-details-info';
     bankInfo.innerHTML = `
@@ -320,7 +409,7 @@ function showBankDetails() {
         </div>
         <div class="bank-detail-row">
             <span>Account Number:</span>
-            <strong>XXXX-XXXX-XXXX 
+            <strong>XXXX-XXXX-XXXX
                 <button class="copy-btn" onclick="copyToClipboard('XXXXXXXXXX', this)">Copy</button>
             </strong>
         </div>
@@ -336,28 +425,27 @@ function showBankDetails() {
             <span>Reference:</span>
             <strong>${currentDonationPurpose}</strong>
         </div>
-        <div style="margin-top: 15px; font-size: 13px; color: #666; padding-top: 10px; border-top: 1px dashed #ddd;">
-            <i class="fas fa-info-circle" style="color: var(--primary);"></i> 
-            After transfer, please email proof to <strong>info@dloveofthehelpers.org</strong>
+        <div style="margin-top:15px; font-size:13px; color:#666; padding-top:10px; border-top:1px dashed #ddd;">
+            <i class="fas fa-info-circle" style="color:var(--primary)"></i>
+            After transfer, email proof to <strong>info@dloveofthehelpers.org</strong>
         </div>
     `;
-    
+
     paymentMethods.appendChild(bankInfo);
 }
 
-// === Copy to Clipboard Helper ===
+// === Copy to Clipboard ===
 function copyToClipboard(text, button) {
     navigator.clipboard.writeText(text).then(function() {
-        const originalText = button.textContent;
+        const original = button.textContent;
         button.textContent = '✓ Copied!';
         button.style.background = '#27ae60';
         setTimeout(() => {
-            button.textContent = originalText;
+            button.textContent = original;
             button.style.background = '';
         }, 2000);
     });
 }
-
 // === Notification System ===
 function showNotification(message, type = 'success') {
     const existing = document.querySelector('.notification');

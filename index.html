@@ -618,36 +618,79 @@
     </button>
 
     <!-- ============================================ -->
-    <!-- DONATION MODAL - Payment Options -->
-    <!-- ============================================ -->
-    <div class="donation-modal" id="donationModal">
-        <div class="modal-overlay" onclick="closeDonateModal()"></div>
-        <div class="modal-content">
-            <button class="modal-close" onclick="closeDonateModal()">
-                <i class="fas fa-times"></i>
-            </button>
+    <!-- DONATION MODAL -->
+<div class="donation-modal" id="donationModal">
+    <div class="modal-overlay" onclick="closeDonateModal()"></div>
+    <div class="modal-content">
+        <button class="modal-close" onclick="closeDonateModal()">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <!-- STEP 1: Donor Details -->
+        <div id="stepDetails" class="modal-step active">
             <div class="modal-header">
                 <div class="modal-icon"><i class="fas fa-heart"></i></div>
                 <h2>Complete Your Donation</h2>
                 <p>You are donating <strong id="modalAmount">$25</strong> for <span id="modalPurpose">Feed A Child</span></p>
             </div>
-            
-            <!-- Custom Amount Input (hidden by default) -->
+
+            <!-- Custom Amount Input -->
             <div class="custom-amount-input" id="customAmountInput" style="display: none;">
                 <label>Enter Amount (USD)</label>
                 <div class="amount-input-wrapper">
                     <span class="currency-symbol">$</span>
                     <input type="number" id="customAmountField" placeholder="Enter amount" min="1" value="10">
                 </div>
-                <button class="btn btn-primary btn-full" onclick="updateCustomAmount()">
-                    Continue <i class="fas fa-arrow-right"></i>
+            </div>
+
+            <!-- Donor Info Form -->
+            <div class="donor-form" id="donorForm">
+                <h3>Your Details</h3>
+                <div class="donor-input-group">
+                    <label><i class="fas fa-user"></i> Full Name</label>
+                    <input 
+                        type="text" 
+                        id="donorName" 
+                        placeholder="Enter your full name" 
+                        required
+                    >
+                </div>
+                <div class="donor-input-group">
+                    <label><i class="fas fa-envelope"></i> Email Address</label>
+                    <input 
+                        type="email" 
+                        id="donorEmail" 
+                        placeholder="Enter your email address" 
+                        required
+                    >
+                </div>
+                <p class="donor-note">
+                    <i class="fas fa-lock"></i> 
+                    Your details are secure and will only be used for donation confirmation.
+                </p>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn btn-primary btn-full" onclick="proceedToPayment()">
+                    Continue to Payment <i class="fas fa-arrow-right"></i>
+                </button>
+                <button class="btn-text" onclick="closeDonateModal()">
+                    Cancel
                 </button>
             </div>
-            
+        </div>
+
+        <!-- STEP 2: Payment Methods -->
+        <div id="stepPayment" class="modal-step" style="display:none;">
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fas fa-credit-card"></i></div>
+                <h2>Choose Payment Method</h2>
+                <p>Donating <strong id="modalAmount2">$25</strong> for <span id="modalPurpose2">Feed A Child</span></p>
+            </div>
+
             <div class="payment-methods" id="paymentMethods">
-                <h3>Choose Payment Method</h3>
-                
-                <!-- Flutterwave (International Cards - PRIMARY) -->
+
+                <!-- Card Payment -->
                 <button class="payment-option flutterwave" onclick="payWithFlutterwave()">
                     <div class="payment-icon">
                         <i class="fas fa-credit-card"></i>
@@ -658,7 +701,7 @@
                     </div>
                     <i class="fas fa-arrow-right"></i>
                 </button>
-                
+
                 <!-- Bank Transfer -->
                 <button class="payment-option bank" onclick="showBankDetails()">
                     <div class="payment-icon">
@@ -671,13 +714,27 @@
                     <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
-            
-            <div class="modal-footer">
-                <p><i class="fas fa-lock"></i> All donations are secure and encrypted</p>
+
+            <!-- Loading State -->
+            <div class="payment-loading" id="paymentLoading" style="display:none;">
+                <div class="loading-spinner"></div>
+                <p>Initializing secure payment...</p>
+                <span>Please wait, do not close this window</span>
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-text" onclick="goBackToDetails()">
+                    <i class="fas fa-arrow-left"></i> Go Back
+                </button>
             </div>
         </div>
-    </div>
 
+        <div class="modal-footer">
+            <p><i class="fas fa-lock"></i> All donations are secure and encrypted</p>
+            <p><i class="fas fa-shield-alt"></i> Powered by Flutterwave</p>
+        </div>
+    </div>
+</div>
     <!-- Flutterwave Script -->
     <script src="script.js"></script>
 </body>
