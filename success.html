@@ -302,11 +302,13 @@
 </div>
 
 <script>
-    // Read URL params from Flutterwave redirect
-    const params = new URLSearchParams(window.location.search);
-    const status = params.get('status');
-    const txRef = params.get('tx_ref');
-    const transactionId = params.get('transaction_id');
+   // Paystack returns these URL params
+const status = params.get('status') || 
+               (params.get('trxref') ? 'successful' : null);
+const txRef = params.get('trxref') || 
+              params.get('reference');
+const transactionId = params.get('transaction_id') || 
+                      params.get('trxref');
 
     // Read donor info from sessionStorage
     const donorName = sessionStorage.getItem('donorName') || 'Donor';

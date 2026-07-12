@@ -332,7 +332,7 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeDonateModal();
 });
 
-// === Flutterwave Payment - IMPROVED ===
+// === Paystack Payment Function ===
 async function payWithFlutterwave() {
 
     // Show loading state
@@ -356,14 +356,15 @@ async function payWithFlutterwave() {
         const data = await response.json();
 
         if (data.status === 'success' && data.payment_link) {
+
             // Save donation info to sessionStorage
-            // So success page can display it
             sessionStorage.setItem('donorName', donorName);
             sessionStorage.setItem('donorEmail', donorEmail);
             sessionStorage.setItem('donationAmount', currentDonationAmount);
             sessionStorage.setItem('donationPurpose', currentDonationPurpose);
+            sessionStorage.setItem('paymentReference', data.reference);
 
-            // Redirect to Flutterwave
+            // Redirect to Paystack payment page
             window.location.href = data.payment_link;
 
         } else {
@@ -373,7 +374,7 @@ async function payWithFlutterwave() {
     } catch (error) {
         console.error('Payment Error:', error);
 
-        // Hide loading, show payment methods again
+        // Hide loading show payment methods again
         document.getElementById('paymentLoading').style.display = 'none';
         document.getElementById('paymentMethods').style.display = 'block';
 

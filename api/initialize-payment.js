@@ -1,18 +1,18 @@
 // api/initialize-payment.js
-// This runs on Vercel's server - secret key is NEVER exposed to users
+// Paystack Payment Integration
 
 export default async function handler(req, res) {
 
-    // Only allow POST requests
+    // Only allow POST
     if (req.method !== 'POST') {
         return res.status(405).json({ 
             error: 'Method not allowed' 
         });
     }
 
-    // Get secret key from Vercel environment
-    const secretKey = process.env.FLW_SECRET_KEY;
-    const publicKey = process.env.FLW_PUBLIC_KEY;
+    // Get keys from Vercel environment
+    const secretKey = process.env.PAYSTACK_SECRET_KEY;
+    const publicKey = process.env.PAYSTACK_PUBLIC_KEY;
 
     // Safety check
     if (!secretKey) {
@@ -24,50 +24,69 @@ export default async function handler(req, res) {
     // Get donation details from frontend
     const { amount, purpose, email, name } = req.body;
 
-    // Validate inputs
+    // Validate
     if (!amount || amount < 1) {
         return res.status(400).json({ 
             error: 'Invalid donation amount' 
         });
     }
 
+    if (!email) {
+        return res.status(400).json({ 
+            error: 'Email is required' 
+        });
+    }
+
     try {
-        // Call Flutterwave API securely from server
-        const response = await fetch('https://api.flutterwave.com/v3/payments', {
+        // Paystack amount is in KOBO (multiply by 100)
+        // For USD we use USD * 100
+        const amountInKobo = Math.round(amount * 100);
+
+        // Call Paystack API
+        const response = await fetch('https://api.paystack.co/transaction/initialize', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${secretKey}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                tx_ref: 'dloveofthehelpers-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-                amount: amount,
+                email: email,
+                amount: amountInKobo,
                 currency: 'USD',
-                redirect_url: 'https://dloveofthehelpers.vercel.app/success.html',
-                customer: {
-                    email: email || 'donor@dloveofthehelpers.org',
-                    name: name || 'Generous Donor',
+                reference: 'dloveofthehelpers-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                callback_url: 'https://dloveofthehelpers.vercel.app/success.html',
+                metadata: {
+                    custom_fields: [
+                        {
+                            display_name: 'Donor Name',
+                            variable_name: 'donor_name',
+                            value: name || 'Anonymous'
+                        },
+                        {
+                            display_name: 'Donation Purpose',
+                            variable_name: 'donation_purpose',
+                            value: purpose || 'General Donation'
+                        }
+                    ],
+                    donor_name: name || 'Anonymous',
+                    donation_purpose: purpose || 'General Donation',
+                    cancel_action: 'https://dloveofthehelpers.vercel.app/success.html?status=cancelled'
                 },
-                customizations: {
-                    title: 'Dloveofthehelpers',
-                    description: 'Donation for ' + (purpose || 'General Donation'),
-                    logo: 'https://dloveofthehelpers.vercel.app/logo.png',
-                },
-                payment_options: 'card, banktransfer, ussd',
             }),
         });
 
         const data = await response.json();
 
-        // Check if Flutterwave returned a payment link
-        if (data.status === 'success' && data.data && data.data.link) {
+        // Check if Paystack returned payment link
+        if (data.status === true && data.data && data.data.authorization_url) {
             return res.status(200).json({
                 status: 'success',
-                payment_link: data.data.link,
+                payment_link: data.data.authorization_url,
+                reference: data.data.reference,
                 public_key: publicKey,
             });
         } else {
-            console.error('Flutterwave Error:', data);
+            console.error('Paystack Error:', data);
             return res.status(400).json({
                 error: 'Could not initialize payment',
                 details: data.message,
