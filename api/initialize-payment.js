@@ -1,5 +1,5 @@
 // api/initialize-payment.js
-// Flutterwave V4 Live Integration - Fixed Auth URL
+// Flutterwave V3 - Simple & Proven
 
 export default async function handler(req, res) {
 
@@ -10,12 +10,11 @@ export default async function handler(req, res) {
         });
     }
 
-    // Get V4 credentials from Vercel
-    const clientId = process.env.FLW_CLIENT_ID;
-    const clientSecret = process.env.FLW_CLIENT_SECRET;
+    // Get V3 secret key from Vercel
+    const secretKey = process.env.FLW_SECRET_KEY;
 
     // Safety check
-    if (!clientId || !clientSecret) {
+    if (!secretKey) {
         return res.status(500).json({ 
             error: 'Payment system not configured' 
         });
@@ -39,54 +38,11 @@ export default async function handler(req, res) {
 
     try {
 
-        // ============================================
-        // STEP 1: Get Access Token - Fixed URL
-        // ============================================
-        const tokenResponse = await fetch('https://auth.flutterwave.com/v4/token', {
+        // Call Flutterwave V3 API
+        const response = await fetch('https://api.flutterwave.com/v3/payments', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                client_id: clientId,
-                client_secret: clientSecret,
-                grant_type: 'client_credentials'
-            }),
-        });
-
-        // Get raw text first to see exactly what Flutterwave returns
-        const rawTokenText = await tokenResponse.text();
-        console.log('Token Raw Response:', rawTokenText);
-
-        // Try to parse as JSON
-        let tokenData;
-        try {
-            tokenData = JSON.parse(rawTokenText);
-        } catch (e) {
-            return res.status(400).json({
-                error: 'Flutterwave auth failed: ' + rawTokenText,
-            });
-        }
-
-        console.log('Token Data:', JSON.stringify(tokenData));
-
-        // If token failed
-        if (!tokenData.access_token) {
-            return res.status(400).json({
-                error: tokenData.message || 'Could not get access token',
-                details: tokenData
-            });
-        }
-
-        const accessToken = tokenData.access_token;
-
-        // ============================================
-        // STEP 2: Initialize Payment
-        // ============================================
-        const paymentResponse = await fetch('https://api.flutterwave.com/v4/payments', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
+                'Authorization': `Bearer ${secretKey}`,
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
@@ -112,32 +68,32 @@ export default async function handler(req, res) {
             }),
         });
 
-        // Get raw payment response
-        const rawPaymentText = await paymentResponse.text();
-        console.log('Payment Raw Response:', rawPaymentText);
+        // Get raw response first
+        const rawText = await response.text();
+        console.log('Flutterwave V3 Raw Response:', rawText);
 
-        // Try to parse payment response
-        let paymentData;
+        // Parse JSON
+        let data;
         try {
-            paymentData = JSON.parse(rawPaymentText);
+            data = JSON.parse(rawText);
         } catch (e) {
             return res.status(400).json({
-                error: 'Payment response error: ' + rawPaymentText,
+                error: 'Flutterwave response error: ' + rawText
             });
         }
 
-        console.log('Payment Data:', JSON.stringify(paymentData));
+        console.log('Flutterwave V3 Data:', JSON.stringify(data));
 
-        // If payment link created successfully
-        if (paymentData.status === 'success' && paymentData.data && paymentData.data.link) {
+        // Check if successful
+        if (data.status === 'success' && data.data && data.data.link) {
             return res.status(200).json({
                 status: 'success',
-                payment_link: paymentData.data.link,
+                payment_link: data.data.link,
             });
         } else {
             return res.status(400).json({
-                error: paymentData.message || 'Could not create payment link',
-                details: paymentData
+                error: data.message || 'Could not initialize payment',
+                details: data
             });
         }
 
