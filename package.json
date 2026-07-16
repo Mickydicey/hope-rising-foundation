@@ -1,0 +1,12 @@
+{
+  "name": "dloveofthehelpers",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Dloveofthehelpers Charity Website",
+  "scripts": {
+    "start": "node api/initialize-payment.js"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
