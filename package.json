@@ -7,6 +7,6 @@
     "start": "node api/initialize-payment.js"
   },
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   }
 }
