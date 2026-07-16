@@ -1,6 +1,6 @@
 // ============================================
 // DLOVEOFTHEHELPERS - COMPLETE JAVASCRIPT
-// With Secure Paystack Payment Integration
+// With Flutterwave V3 Integration
 // ============================================
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // ============================================
-// DONATION MODAL & PAYSTACK INTEGRATION
+// DONATION MODAL & FLUTTERWAVE V3 INTEGRATION
 // ============================================
 
 // Global variables
@@ -179,6 +179,8 @@ let currentDonationPurpose = 'General Donation';
 let donorName = '';
 let donorEmail = '';
 
+// ⚠️ IMPORTANT: Replace with your actual Flutterwave donation link
+const FLUTTERWAVE_DONATION_LINK = 'https://flutterwave.com/donate/omwfudt246zv';
 // === Open Donation Modal ===
 function openDonateModal(amount, purpose) {
     currentDonationAmount = amount;
@@ -325,7 +327,28 @@ document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeDonateModal();
 });
 
-// === Paystack Payment Function (Calls secure backend) ===
+// ============================================
+// FLUTTERWAVE DONATION LINK (Option 1)
+// ============================================
+
+function payWithFlutterwaveLink() {
+    document.getElementById('paymentMethods').style.display = 'none';
+    document.getElementById('paymentLoading').style.display = 'block';
+
+    sessionStorage.setItem('donorName', donorName || 'Generous Donor');
+    sessionStorage.setItem('donorEmail', donorEmail || '');
+    sessionStorage.setItem('donationAmount', currentDonationAmount);
+    sessionStorage.setItem('donationPurpose', currentDonationPurpose);
+
+    setTimeout(function() {
+        window.location.href = FLUTTERWAVE_DONATION_LINK;
+    }, 800);
+}
+
+// ============================================
+// SECURE CHECKOUT - FLUTTERWAVE V3 API (Option 2)
+// ============================================
+
 async function payWithFlutterwave() {
     document.getElementById('paymentMethods').style.display = 'none';
     document.getElementById('paymentLoading').style.display = 'block';
@@ -353,10 +376,8 @@ async function payWithFlutterwave() {
             sessionStorage.setItem('donationPurpose', currentDonationPurpose);
             sessionStorage.setItem('paymentReference', data.reference);
 
-            // Redirect user to secure Paystack screen
             window.location.href = data.payment_link;
         } else {
-            // Throw exact error returned from server / Paystack
             throw new Error(data.error || 'Payment initialization failed');
         }
 
@@ -370,7 +391,10 @@ async function payWithFlutterwave() {
     }
 }
 
-// === Show Bank Transfer Details ===
+// ============================================
+// BANK TRANSFER DETAILS (Manual Option)
+// ============================================
+
 function showBankDetails() {
     const paymentMethods = document.getElementById('paymentMethods');
 
@@ -419,7 +443,10 @@ function showBankDetails() {
     paymentMethods.appendChild(bankInfo);
 }
 
-// === Copy to Clipboard ===
+// ============================================
+// COPY TO CLIPBOARD
+// ============================================
+
 function copyToClipboard(text, button) {
     navigator.clipboard.writeText(text).then(function() {
         const original = button.textContent;
@@ -432,7 +459,10 @@ function copyToClipboard(text, button) {
     });
 }
 
-// === Notification System ===
+// ============================================
+// NOTIFICATION SYSTEM
+// ============================================
+
 function showNotification(message, type = 'success') {
     const existing = document.querySelector('.notification');
     if (existing) existing.remove();
